@@ -58,8 +58,8 @@ jobs:
       # 6. Verify Node
       - name: Verify Node Installation
         run: |
-          node -version
-          npm -version
+          node --version
+          npm --version
 
 
 
