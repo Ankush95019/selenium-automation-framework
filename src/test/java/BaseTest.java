@@ -1,4 +1,6 @@
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.Assert;
@@ -41,13 +43,14 @@ public class BaseTest {
     @Test
     public void verifyGoogleTitle() {
 
-        driver.get("https://www.google.com");
+        driver.get("http://localhost:5173");
+        WebElement ele1 = driver.findElement(By.xpath("//a[normalize-space()='GitHub Actions Demo']"));
+//        String title = driver.getTitle();
+        String heading = ele1.getText();
 
-        String title = driver.getTitle();
+        System.out.println(heading);
 
-        System.out.println(title);
-
-        Assert.assertEquals(title, "Google");
+        Assert.assertEquals(heading, "GitHub Actions Demo");
 
     }
 
