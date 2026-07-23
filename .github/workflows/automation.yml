@@ -1,0 +1,30 @@
+name: Selenium Automation Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  automation-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Automation Code
+        uses: actions/checkout@v5
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Verify Java Installation
+        run: java -version
+
+      - name: Verify Maven Installation
+        run: mvn -version
+
+      - name: Run Selenium Tests
+        run: mvn clean test
