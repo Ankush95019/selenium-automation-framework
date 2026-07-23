@@ -1,7 +1,6 @@
 name: Selenium Automation Pipeline
 
 on:
-
   workflow_dispatch:
 
 
@@ -21,7 +20,16 @@ jobs:
 
 
 
-      # 2. Setup Java
+      # 2. Checkout React Application Repository
+      - name: Checkout React Application
+        uses: actions/checkout@v5
+        with:
+          repository: Ankush95019/github-actions-demo
+          path: frontend
+
+
+
+      # 3. Setup Java
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -31,13 +39,7 @@ jobs:
 
 
 
-      # 3. Verify Java Installation
-      - name: Verify Java Installation
-        run: java -version
-
-
-
-      # 4. Setup Node.js (Required for React App)
+      # 4. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
@@ -47,23 +49,14 @@ jobs:
 
 
 
-      # 5. Checkout React Application Repository
-      - name: Checkout React Application
-        uses: actions/checkout@v5
-        with:
-          repository: Ankush95019/github-actions-demo
-          path: frontend
-
-
-
-      # 6. Install React Dependencies
+      # 5. Install React Dependencies
       - name: Install React Dependencies
         working-directory: frontend
         run: npm install
 
 
 
-      # 7. Start React Application
+      # 6. Start React Application
       - name: Start React Application
         working-directory: frontend
         run: |
@@ -71,18 +64,18 @@ jobs:
 
 
 
-      # 8. Install wait-on
+      # 7. Install wait-on
       - name: Install wait-on
         run: npm install -g wait-on
 
 
 
-      # 9. Wait Until React Application Starts
+      # 8. Wait for React Application
       - name: Wait for Application
         run: wait-on http://localhost:5173
 
 
 
-      # 10. Execute Selenium Tests
+      # 9. Run Selenium Tests
       - name: Run Selenium Tests
         run: mvn clean test
