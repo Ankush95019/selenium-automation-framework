@@ -1,6 +1,8 @@
 name: Selenium Automation Pipeline
 
+
 on:
+
   workflow_dispatch:
 
 
@@ -39,24 +41,36 @@ jobs:
 
 
 
-      # 4. Setup Node.js
+      # 4. Verify Java
+      - name: Verify Java Installation
+        run: java -version
+
+
+
+      # 5. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
 
 
 
-      # 5. Install React Dependencies
+      # 6. Verify Node
+      - name: Verify Node Installation
+        run: |
+          node -version
+          npm -version
+
+
+
+      # 7. Install React Dependencies
       - name: Install React Dependencies
         working-directory: frontend
         run: npm install
 
 
 
-      # 6. Start React Application
+      # 8. Start React Application
       - name: Start React Application
         working-directory: frontend
         run: |
@@ -64,18 +78,18 @@ jobs:
 
 
 
-      # 7. Install wait-on
+      # 9. Install wait-on
       - name: Install wait-on
         run: npm install -g wait-on
 
 
 
-      # 8. Wait for React Application
+      # 10. Wait Until React Application Starts
       - name: Wait for Application
         run: wait-on http://localhost:5173
 
 
 
-      # 9. Run Selenium Tests
+      # 11. Run Selenium Tests
       - name: Run Selenium Tests
         run: mvn clean test
