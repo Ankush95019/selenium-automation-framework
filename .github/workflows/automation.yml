@@ -27,11 +27,11 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: Ankush95019/github-actions-demo
-          path: frontend
+          path: frontend-app
 
 
 
-      # 3. Setup Java
+      # 3. Setup Java 21
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
@@ -41,13 +41,13 @@ jobs:
 
 
 
-      # 4. Verify Java
+      # 4. Verify Java Installation
       - name: Verify Java Installation
         run: java -version
 
 
 
-      # 5. Setup Node.js
+      # 5. Setup Node.js 22
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
@@ -55,7 +55,7 @@ jobs:
 
 
 
-      # 6. Verify Node
+      # 6. Verify Node Installation
       - name: Verify Node Installation
         run: |
           node --version
@@ -65,14 +65,14 @@ jobs:
 
       # 7. Install React Dependencies
       - name: Install React Dependencies
-        working-directory: frontend
+        working-directory: frontend-app/frontend
         run: npm install
 
 
 
       # 8. Start React Application
       - name: Start React Application
-        working-directory: frontend
+        working-directory: frontend-app/frontend
         run: |
           npm run start-ci &
 
@@ -90,6 +90,6 @@ jobs:
 
 
 
-      # 11. Run Selenium Tests
+      # 11. Run Selenium Automation Tests
       - name: Run Selenium Tests
         run: mvn clean test
