@@ -5,6 +5,9 @@ on:
     types:
       - run-selenium
 
+permissions:
+  contents: write
+
 jobs:
   automation-test:
     runs-on: ubuntu-latest
@@ -33,38 +36,120 @@ jobs:
       - name: Verify Java Installation
         run: java -version
 
-      # 5. Setup Node.js 22
+      # 5. Install Allure
+      - name: Install Allure
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-jre wget
+          wget https://github.com/allure-framework/allure2/releases/download/2.34.1/allure-2.34.1.tgz
+          tar -zxvf allure-2.34.1.tgz
+          sudo mv allure-2.34.1 /opt/allure
+          sudo ln -sf /opt/allure/bin/allure /usr/bin/allure
+          allure --version
+
+      # 6. Setup Node.js 22
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: '22'
 
-      # 6. Verify Node Installation
+      # 7. Verify Node Installation
       - name: Verify Node Installation
         run: |
           node --version
           npm --version
 
-      # 7. Install React Dependencies
+      # 8. Install React Dependencies
       - name: Install React Dependencies
         working-directory: frontend-app/frontend
         run: npm ci
 
-      # 8. Start React Application
+      # 9. Start React Application
       - name: Start React Application
         working-directory: frontend-app/frontend
         run: |
           npm run start-ci &
           echo "React application started."
 
-      # 9. Install wait-on
+      # 10. Install wait-on
       - name: Install wait-on
         run: npm install -g wait-on
 
-      # 10. Wait Until React Application Starts
+      # 11. Wait Until React Application Starts
       - name: Wait for Application
         run: wait-on http://localhost:5173
 
-      # 11. Run Selenium Automation Tests
+      # 12. Run Selenium Automation Tests
       - name: Run Selenium Tests
         run: mvn clean test
+
+      # 13. Publish JUnit Test Summary
+      - name: Publish JUnit Report
+        if: always()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: target/surefire-reports/*.xml
+
+      # 14. Generate Allure Report
+      - name: Generate Allure Report
+        if: always()
+        run: |
+          allure generate target/allure-results --clean -o allure-report
+
+      # 15. Upload Allure Report as Artifact
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      # 16. Deploy Allure Report to GitHub Pages
+      - name: Deploy Allure Report
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report
+
+      # 17. Send Email Notification
+      - name: Send Email
+        if: always()
+        uses: dawidd6/action-send-mail@v6
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+
+          subject: Selenium Automation Report - ${{ job.status }}
+
+          to: gk45u10@gmail.com
+
+          from: GitHub Actions
+
+          body: |
+            Automation Execution Completed.
+
+            Repository:
+            ${{ github.repository }}
+
+            Branch:
+            ${{ github.ref_name }}
+
+            Status:
+            ${{ job.status }}
+
+            Workflow:
+            ${{ github.workflow }}
+
+            Run Number:
+            ${{ github.run_number }}
+
+            Allure Report:
+            https://ankush95019.github.io/selenium-automation-framework/
+
+            Artifacts:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

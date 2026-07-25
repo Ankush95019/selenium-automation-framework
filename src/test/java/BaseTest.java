@@ -9,6 +9,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 
 
 public class BaseTest {
@@ -40,6 +43,10 @@ public class BaseTest {
 
     }
 
+    
+    @Epic("GitHub Actions")
+    @Feature("React Build")
+    @Story("Verify Home Page")
     @Test
     public void verifyGoogleTitle() {
 
