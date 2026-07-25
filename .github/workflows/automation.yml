@@ -1,32 +1,18 @@
 name: Selenium Automation Pipeline
 
-
 on:
-
-  workflow_run:
-    workflows:
-      - React Build Pipeline
+  repository_dispatch:
     types:
-      - completed
-
+      - run-selenium
 
 jobs:
-
-   automation-test:
-
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
+  automation-test:
     runs-on: ubuntu-latest
 
-
     steps:
-
-
       # 1. Checkout Selenium Automation Code
       - name: Checkout Automation Code
         uses: actions/checkout@v5
-
-
 
       # 2. Checkout React Application Repository
       - name: Checkout React Application
@@ -34,8 +20,6 @@ jobs:
         with:
           repository: Ankush95019/github-actions-demo
           path: frontend-app
-
-
 
       # 3. Setup Java 21
       - name: Setup Java
@@ -45,13 +29,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-
-
       # 4. Verify Java Installation
       - name: Verify Java Installation
         run: java -version
-
-
 
       # 5. Setup Node.js 22
       - name: Setup Node.js
@@ -59,42 +39,31 @@ jobs:
         with:
           node-version: '22'
 
-
-
       # 6. Verify Node Installation
       - name: Verify Node Installation
         run: |
           node --version
           npm --version
 
-
-
       # 7. Install React Dependencies
       - name: Install React Dependencies
         working-directory: frontend-app/frontend
-        run: npm install
-
-
+        run: npm ci
 
       # 8. Start React Application
       - name: Start React Application
         working-directory: frontend-app/frontend
         run: |
           npm run start-ci &
-
-
+          echo "React application started."
 
       # 9. Install wait-on
       - name: Install wait-on
         run: npm install -g wait-on
 
-
-
       # 10. Wait Until React Application Starts
       - name: Wait for Application
         run: wait-on http://localhost:5173
-
-
 
       # 11. Run Selenium Automation Tests
       - name: Run Selenium Tests
