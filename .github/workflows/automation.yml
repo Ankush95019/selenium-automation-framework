@@ -7,6 +7,7 @@ on:
       - run-selenium
 
 
+
 permissions:
   contents: read
   pages: write
@@ -16,7 +17,9 @@ permissions:
 
 jobs:
 
+
   automation-test:
+
 
     runs-on: ubuntu-latest
 
@@ -51,14 +54,14 @@ jobs:
 
 
 
-      # 4. Verify Java Installation
+      # 4. Verify Java
       - name: Verify Java Installation
         run: java -version
 
 
 
 
-      # 5. Install Allure CLI
+      # 5. Install Allure
       - name: Install Allure
         run: |
 
@@ -79,7 +82,7 @@ jobs:
 
 
 
-      # 6. Setup Node.js 22
+      # 6. Setup Node
       - name: Setup Node.js
         uses: actions/setup-node@v5
 
@@ -89,7 +92,7 @@ jobs:
 
 
 
-      # 7. Verify Node Installation
+      # 7. Verify Node
       - name: Verify Node Installation
         run: |
 
@@ -127,7 +130,7 @@ jobs:
 
 
 
-      # 11. Wait Until React Application Starts
+      # 11. Wait for Application
       - name: Wait for Application
         run: wait-on http://localhost:5173
 
@@ -141,7 +144,7 @@ jobs:
 
 
 
-      # 13. Publish JUnit Test Summary
+      # 13. Publish JUnit Report
       - name: Publish JUnit Report
         if: always()
 
@@ -164,22 +167,20 @@ jobs:
 
 
 
-      # 15. Upload Allure Report Artifact
+      # 15. Upload Allure Artifact
       - name: Upload Allure Report
         if: always()
 
         uses: actions/upload-artifact@v4
 
         with:
-
           name: allure-report
-
           path: allure-report
 
 
 
 
-      # 16. Configure GitHub Pages
+      # 16. Configure Pages
       - name: Setup Pages
         if: always()
 
@@ -188,14 +189,13 @@ jobs:
 
 
 
-      # 17. Upload Allure Report for GitHub Pages
+      # 17. Upload Pages Artifact
       - name: Upload Pages Artifact
         if: always()
 
         uses: actions/upload-pages-artifact@v3
 
         with:
-
           path: allure-report
 
 
@@ -203,74 +203,8 @@ jobs:
 
 
 
-      # 18. Send Email Notification
-      - name: Send Email
-        if: always()
-
-        uses: dawidd6/action-send-mail@v6
-
-        with:
-
-          server_address: smtp.gmail.com
-
-          server_port: 465
-
-          secure: true
-
-
-          username: ${{ secrets.EMAIL_USERNAME }}
-
-          password: ${{ secrets.EMAIL_PASSWORD }}
-
-
-          subject: Selenium Automation Report - ${{ job.status }}
-
-
-          to: gk45u10@gmail.com
-
-
-          from: GitHub Actions
-
-
-          body: |
-
-            Automation Execution Completed.
-
-
-            Repository:
-
-            ${{ github.repository }}
-
-
-            Branch:
-
-            ${{ github.ref_name }}
-
-
-            Status:
-
-            ${{ job.status }}
-
-
-            Workflow:
-
-            ${{ github.workflow }}
-
-
-            Run Number:
-
-            ${{ github.run_number }}
-
-
-            GitHub Actions Run:
-
-            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-
-
-
   # =====================================================
-  # Deploy Allure Report to GitHub Pages
+  # Deploy Allure Report
   # =====================================================
 
 
@@ -287,7 +221,6 @@ jobs:
     permissions:
 
       pages: write
-
       id-token: write
 
 
@@ -300,12 +233,123 @@ jobs:
 
 
 
+    outputs:
+
+      page_url: ${{ steps.deployment.outputs.page_url }}
+
+
+
     steps:
 
 
-      # 19. Deploy Pages
+      # 18. Deploy Report
       - name: Deploy to GitHub Pages
 
         id: deployment
 
         uses: actions/deploy-pages@v4
+
+
+
+
+
+
+  # =====================================================
+  # Send Email After Report Deployment
+  # =====================================================
+
+
+  send-email:
+
+
+    needs: deploy-pages
+
+
+    runs-on: ubuntu-latest
+
+
+
+    steps:
+
+
+      # 19. Send Email
+      - name: Send Email Notification
+
+        uses: dawidd6/action-send-mail@v6
+
+
+        with:
+
+
+          server_address: smtp.gmail.com
+
+          server_port: 465
+
+          secure: true
+
+
+
+          username: ${{ secrets.EMAIL_USERNAME }}
+
+          password: ${{ secrets.EMAIL_PASSWORD }}
+
+
+
+          subject: Selenium Automation Report - ${{ needs.deploy-pages.result }}
+
+
+
+          to: gk45u10@gmail.com
+
+
+
+          from: GitHub Actions
+
+
+
+          body: |
+
+
+            Selenium Automation Execution Completed.
+
+
+
+            Repository:
+
+            ${{ github.repository }}
+
+
+
+            Branch:
+
+            ${{ github.ref_name }}
+
+
+
+            Status:
+
+            ${{ needs.deploy-pages.result }}
+
+
+
+            Workflow:
+
+            ${{ github.workflow }}
+
+
+
+            Run Number:
+
+            ${{ github.run_number }}
+
+
+
+            Allure Report:
+
+            ${{ needs.deploy-pages.outputs.page_url }}
+
+
+
+            GitHub Actions Run:
+
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
