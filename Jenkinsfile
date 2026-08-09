@@ -33,6 +33,8 @@ environment {
     SELENIUM_DIR = 'selenium-app'
 
     ALLURE_REPORT_DIR = 'allure-report'
+    
+    ALLURE_REPORT_URL = 'https://ankush95019.github.io/selenium-automation-framework/'
 
 }
 
@@ -511,6 +513,118 @@ stage('Generate Allure Report') {
     }
 
 }
+
+
+
+    // ========================================================
+    // 18. SEND EMAIL OF ALLURE REPORT LIVE URL
+    // ========================================================
+
+
+stage('Send Allure Report Email') {
+
+    steps {
+
+        withCredentials([
+
+            usernamePassword(
+
+                credentialsId: 'jenkins-email-credentials',
+
+                usernameVariable: 'EMAIL_USERNAME',
+
+                passwordVariable: 'EMAIL_PASSWORD'
+
+            )
+
+        ]) {
+
+            emailext(
+
+                subject:
+                    "Selenium Automation Report - Build #${BUILD_NUMBER} - ${currentBuild.currentResult}",
+
+                to:
+                    'gk45u10@gmail.com',
+
+                from:
+                    "${EMAIL_USERNAME}",
+
+                replyTo:
+                    "${EMAIL_USERNAME}",
+
+                mimeType:
+                    'text/html',
+
+                body:
+                    """
+                    <html>
+
+                    <body>
+
+                    <h2>Selenium Automation Test Report</h2>
+
+                    <p>Hello Team,</p>
+
+                    <p>
+                    Selenium automation execution has completed.
+                    </p>
+
+                    <p>
+                    <b>Build Status:</b>
+                    ${currentBuild.currentResult}
+                    </p>
+
+                    <p>
+                    <b>Build Number:</b>
+                    #${BUILD_NUMBER}
+                    </p>
+
+                    <p>
+                    <b>Jenkins Build:</b><br>
+
+                    <a href="${BUILD_URL}">
+                        Open Jenkins Build
+                    </a>
+
+                    </p>
+
+                    <p>
+                    <b>Allure Report:</b><br>
+
+                    <a href="${ALLURE_REPORT_URL}">
+                        Open Live Allure Report
+                    </a>
+
+                    </p>
+
+                    <p>
+                    <b>Direct URL:</b><br>
+                    ${ALLURE_REPORT_URL}
+                    </p>
+
+                    <br>
+
+                    <p>
+                    Regards,<br>
+                    Jenkins Automation Pipeline
+                    </p>
+
+                    </body>
+
+                    </html>
+                    """
+
+            )
+
+        }
+
+    }
+
+}
+
+
+
 
 // ============================================================
 // POST BUILD ACTIONS
