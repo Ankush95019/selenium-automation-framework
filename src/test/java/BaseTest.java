@@ -24,10 +24,7 @@ public class BaseTest {
     public void setup(){
 
 
-        WebDriverManager.chromedriver().setup();
-
-
-        ChromeOptions options = new ChromeOptions();
+    	ChromeOptions options = new ChromeOptions();
 
 
         options.addArguments("--headless=new");
@@ -59,6 +56,28 @@ public class BaseTest {
 
         Assert.assertEquals(heading, "GitHub Actions Demo");
 
+    }
+    
+    @Epic("Jenkins")
+    @Feature("Color of Text")
+    @Test
+    public void VerifyTextColor1() {
+    	System.out.println("Your text is of Red color");
+    }
+    
+    @Test
+    public void VerifyTextColor2() {
+    	System.out.println("Your text is of Yellow color");
+    }
+    
+    @Test
+    public void VerifyTextColor3() {
+    	System.out.println("Your text is of Green color");
+    }
+    
+    @Test
+    public void VerifyTextColor4() {
+    	System.out.println("Your text is of Blue color");
     }
 
 
