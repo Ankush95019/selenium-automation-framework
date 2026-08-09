@@ -79,6 +79,11 @@ public class BaseTest {
     public void VerifyTextColor4() {
     	System.out.println("Your text is of Blue color");
     }
+    
+    @Test
+    public void VerifyTextColor5() {
+    	System.out.println("Your text is of White color");
+    }
 
 
     @AfterMethod
