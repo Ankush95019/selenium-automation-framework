@@ -337,28 +337,70 @@ stages {
     // 14. GENERATE ALLURE REPORT
     // ========================================================
 
-    stage('Generate Allure Report') {
 
-        steps {
+stage('Generate Allure Report') {
 
-            dir("${SELENIUM_DIR}") {
+	
+	steps {
+	
+	    dir("${SELENIUM_DIR}") {
+	
+	        bat '''
+	            echo ==========================================
+	            echo Generating Allure Report
+	            echo ==========================================
+	
+	            echo Checking Allure installation...
+	
+	            C:\\Tools\\allure-2.45.0\\bin\\allure.bat --version
+	
+	            if %ERRORLEVEL% NEQ 0 (
+	                echo ERROR: Allure CLI is not working.
+	                exit /b 1
+	            )
+	
+	            echo Checking Allure results directory...
+	
+	            if not exist target\\allure-results (
+	                echo ERROR: Allure results directory does not exist.
+	                exit /b 1
+	            )
+	
+	            echo Allure results directory found.
+	
+	            echo Generating Allure HTML report...
+	
+	            if exist ..\\allure-report (
+	                rmdir /S /Q ..\\allure-report
+	            )
+	
+	            C:\\Tools\\allure-2.45.0\\bin\\allure.bat generate target\\allure-results --clean -o ..\\allure-report
+	
+	            if %ERRORLEVEL% NEQ 0 (
+	                echo ERROR: Allure report generation failed.
+	                exit /b 1
+	            )
+	
+	            if not exist ..\\allure-report\\index.html (
+	                echo ERROR: Allure index.html was not generated.
+	                exit /b 1
+	            )
+	
+	            echo ==========================================
+	            echo Allure Report Generated Successfully
+	            echo ==========================================
+	
+	            echo Report location:
+	            echo %WORKSPACE%\\allure-report
+	        '''
+	
+	    }
 
-                bat '''
-                    echo Generating Allure report...
+	}
 
-                    if not exist target\\allure-results (
-                        echo Allure results directory does not exist.
-                        exit /b 1
-                    )
 
-                    allure generate target\\allure-results --clean -o ..\\allure-report
-                '''
+}
 
-            }
-
-        }
-
-    }
 
     // ========================================================
     // 15. PUBLISH ALLURE REPORT INSIDE JENKINS
