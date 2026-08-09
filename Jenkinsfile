@@ -227,16 +227,13 @@ stages {
 
             dir("${REACT_DIR}/frontend") {
 
-                powershell '''
-                    Write-Host "Starting React application..."
-
-                    Start-Process `
-                        -FilePath "cmd.exe" `
-                        -ArgumentList "/c npm run start-ci > react.log 2>&1" `
-                        -WindowStyle Hidden
-
-                    Write-Host "React application startup command executed."
-                '''
+                bat '''
+	                echo Starting React application...
+	
+	                start "React Application" /B cmd /c "npm run dev -- --host 0.0.0.0 > react.log 2>&1"
+	
+	                echo React application startup command executed.
+            	'''
 
             }
 
@@ -250,62 +247,52 @@ stages {
 
     stage('Wait For React Application') {
 
-        steps {
-
-            powershell '''
-                $maxAttempts = 60
-                $url = "http://localhost:5173"
-
-                Write-Host "Waiting for React application..."
-                Write-Host "URL: $url"
-
-                for ($i = 1; $i -le $maxAttempts; $i++) {
-
-                    try {
-
-                        $response = Invoke-WebRequest `
-                            -Uri $url `
-                            -UseBasicParsing `
-                            -TimeoutSec 2
-
-                        if ($response.StatusCode -eq 200) {
-
-                            Write-Host "React application is running."
-                            Write-Host "Application responded successfully on attempt $i."
-
-                            exit 0
-
-                        }
-
-                    }
-                    catch {
-
-                        Write-Host "Application is not ready yet."
-
-                    }
-
-                    Write-Host "Waiting for React application... Attempt $i of $maxAttempts"
-
-                    Start-Sleep -Seconds 2
-
-                }
-
-                Write-Error "React application did not start within the expected time."
-
-                Write-Host "Checking React log..."
-
-                if (Test-Path "${REACT_DIR}/frontend/react.log") {
-
-                    Get-Content "${REACT_DIR}/frontend/react.log"
-
-                }
-
-                exit 1
-            '''
-
-        }
-
-    }
+	    steps {
+	
+	        bat '''
+	            echo Waiting for React application...
+	
+	            set MAX_ATTEMPTS=60
+	
+	            for /L %%i in (1,1,%MAX_ATTEMPTS%) do (
+	
+	                echo Checking React application... Attempt %%i of %MAX_ATTEMPTS%
+	
+	                curl -s -o NUL -w "HTTP Status: %%{http_code}" http://localhost:5173
+	
+	                if not errorlevel 1 (
+	
+	                    echo.
+	                    echo React application is running.
+	
+	                    exit /b 0
+	
+	                )
+	
+	                echo.
+	                echo Application is not ready yet.
+	
+	                timeout /t 2 /nobreak >nul
+	
+	            )
+	
+	            echo React application did not start within the expected time.
+	
+	            if exist "%WORKSPACE%\\react-app\\frontend\\react.log" (
+	
+	                echo.
+	                echo ================= React Log =================
+	                type "%WORKSPACE%\\react-app\\frontend\\react.log"
+	                echo =============================================
+	
+	            )
+	
+	            exit /b 1
+	        '''
+	
+	    }
+	
+	}
 
     // ========================================================
     // 12. RUN SELENIUM TESTS
