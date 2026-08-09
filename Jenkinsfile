@@ -9,13 +9,13 @@ pipeline {
 
     tools {
 
-        jdk 'JDK21'
+        jdk 'jdk-21'
 
-        maven 'Maven'
+        maven 'MyMaven'
 
-        nodejs 'NodeJS22'
+        nodejs 'MyNodejs'
 
-        allure 'Allure'
+        allure 'MyAllure'
 
     }
 
